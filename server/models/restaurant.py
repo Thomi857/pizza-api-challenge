@@ -1,18 +1,20 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String
+# server/models/restaurant.py
 
-db = SQLAlchemy()
+from ..app import db
+from sqlalchemy.orm import relationship
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurants'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    address = Column(String, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    address = db.Column(db.String, nullable=False)
 
-    # One to Many relationship with RestaurantPizza
-    restaurant_pizzas = relationship("RestaurantPizza", back_populates="restaurant", cascade="all, delete-orphan")
+    restaurant_pizzas = relationship("RestaurantPizza", backref="restaurant", cascade="all, delete-orphan")
 
-                  
-    pizzas = relationship("Pizza", secondary="restaurant_pizzas", back_populates="restaurants")
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "address": self.address
+        }

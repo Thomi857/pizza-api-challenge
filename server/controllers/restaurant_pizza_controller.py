@@ -1,56 +1,30 @@
-from flask import Blueprint, request, jsonify
-from server.models import db, RestaurantPizza, Pizza, Restaurant
+# server/controllers/restaurant_pizza_controller.py
 
-restaurant_pizza_bp = Blueprint('restaurant_pizzas', __name__, url_prefix='/restaurant_pizzas')
+from flask import Blueprint, jsonify, request
+from ..models.restaurant_pizza import RestaurantPizza
+from ..models.pizza import Pizza
+from ..models.restaurant import Restaurant
+from ..app import db
 
-@restaurant_pizza_bp.route('', methods=['POST'])
+restaurant_pizza_bp = Blueprint("restaurant_pizzas", __name__)
+
+@restaurant_pizza_bp.route("/", methods=["POST"])
 def create_restaurant_pizza():
     data = request.get_json()
 
-    price = data.get('price')
-    pizza_id = data.get('pizza_id')
-    restaurant_id = data.get('restaurant_id')
+    try:
+        price = int(data["price"])
+        pizza_id = int(data["pizza_id"])
+        restaurant_id = int(data["restaurant_id"])
+    except (KeyError, ValueError, TypeError):
+        return jsonify({"errors": ["Invalid input format"]}), 400
 
-    errors = []
+    rp = RestaurantPizza(price=price, pizza_id=pizza_id, restaurant_id=restaurant_id)
 
-    # Validate price
-    if not isinstance(price, int) or not (1 <= price <= 30):
-        errors.append("Price must be between 1 and 30")
+    if not rp.is_valid_price():
+        return jsonify({"errors": ["Price must be between 1 and 30"]}), 400
 
-    # Validate pizza exists
-    pizza = Pizza.query.get(pizza_id)
-    if not pizza:
-        errors.append("Pizza not found")
-
-    # Validate restaurant exists
-    restaurant = Restaurant.query.get(restaurant_id)
-    if not restaurant:
-        errors.append("Restaurant not found")
-
-    if errors:
-        return jsonify({"errors": errors}), 400
-
-    # Create new RestaurantPizza
-    new_rp = RestaurantPizza(price=price, pizza_id=pizza_id, restaurant_id=restaurant_id)
-
-    db.session.add(new_rp)
+    db.session.add(rp)
     db.session.commit()
 
-    response = {
-        "id": new_rp.id,
-        "price": new_rp.price,
-        "pizza_id": new_rp.pizza_id,
-        "restaurant_id": new_rp.restaurant_id,
-        "pizza": {
-            "id": pizza.id,
-            "name": pizza.name,
-            "ingredients": pizza.ingredients
-        },
-        "restaurant": {
-            "id": restaurant.id,
-            "name": restaurant.name,
-            "address": restaurant.address
-        }
-    }
-
-    return jsonify(response), 201
+    return jsonify(rp.to_dict()), 201
