@@ -11,12 +11,12 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    r1 = Restaurant(name="Luigi's Slice", address="789 Oak Ave")
-    r2 = Restaurant(name="Bella Napoli", address="321 Maple Rd")
+    r1 = Restaurant(name="Osaka", address="789 Oak Ave")
+    r2 = Restaurant(name="madrid", address="321 Maple Rd")
 
-    p1 = Pizza(name="Four Cheese", ingredients="Dough, Tomato Sauce, Mozzarella, Parmesan, Gorgonzola, Ricotta")
-    p2 = Pizza(name="BBQ Chicken", ingredients="Dough, BBQ Sauce, Chicken, Red Onion, Cilantro, Cheese")
-    p3 = Pizza(name="Hawaiian", ingredients="Dough, Tomato Sauce, Ham, Pineapple, Cheese")
+    p1 = Pizza(name="Margherita", ingredients="Dough, Tomato Sauce, Mozzarella, Basil, Olive Oil")
+    p2 = Pizza(name="Pepperoni", ingredients="Dough, Tomato Sauce, Mozzarella, Pepperoni")
+    p3 = Pizza(name="Veggie Delight", ingredients="Dough, Tomato Sauce, Mozzarella, Bell Peppers, Olives, Onions, Mushrooms")
 
     db.session.add_all([r1, r2, p1, p2, p3])
     db.session.commit()
